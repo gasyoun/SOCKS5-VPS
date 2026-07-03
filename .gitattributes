@@ -1,0 +1,10 @@
+# Shell-скрипты исполняются на Linux-серверах — ВСЕГДА LF, независимо от
+# core.autocrlf на машине, где репозиторий клонируют/чекаутят. Иначе при
+# checkout на Windows они получат CRLF и сломаются на сервере ($'\r': not found).
+*.sh    text eol=lf
+
+# PowerShell-скрипты исполняются на Windows — CRLF (LF тоже работает, но CRLF нативно).
+*.ps1   text eol=crlf
+
+# Документация — нормализуем к LF в репозитории.
+*.md    text eol=lf
