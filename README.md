@@ -37,7 +37,7 @@ _Created: 03-07-2026 · Last updated: 03-07-2026_
 
 ## Статус
 
-Ветка `add-socks5-vps-toolkit`, ещё не влита в `main` — ждёт боевого прогона на
+Ветка `add-socks5-vps-toolkit`, еще не влита в `main` — ждет боевого прогона на
 реальном VPS (см. [.ai_state.md](.ai_state.md) → Next Steps).
 
 ---
