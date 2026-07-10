@@ -3,7 +3,7 @@
 Все заметные изменения набора SOCKS5-VPS. Формат — по мотивам
 [Keep a Changelog](https://keepachangelog.com/); даты в ISO (YYYY-MM-DD).
 
-## [0.1.0] — 2026-06-16 (ветка `add-socks5-vps-toolkit`, ещё не в `main`)
+## [0.1.0] — 2026-06-16 (ветка `add-socks5-vps-toolkit`, еще не в `main`)
 
 Первый сбор тулкита: цепочка для доступа к Claude / Google Antigravity из РФ —
 ваш трафик выходит в интернет с иностранного (или резидентного) IP.
@@ -49,7 +49,7 @@
   Fake-TLS-секрет и приватный ключ WG — за интерактивным TTY (не в CI/логи);
   конфиги с паролями `chmod 600`.
 - **Изоляция/валидация.** systemd-sandbox для danted/3proxy/mtg
-  (`RestrictAddressFamilies` включает `AF_UNIX`/`AF_NETLINK` для резолва имён);
+  (`RestrictAddressFamilies` включает `AF_UNIX`/`AF_NETLINK` для резолва имен);
   строгая валидация портов (base-10), IP/CIDR, кредов (whitespace/`:`).
 - **WireGuard.** IPv6-форвардинг выключен (стек v4-only, без открытого v6-релея).
 - **Git.** [`.gitattributes`](.gitattributes) пинит `*.sh` на `eol=lf`, чтобы при
