@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ## scripts/ — прокси-цепочка РФ → зарубежный VPS
 
 Скрипты поднимают цепочку, в которой ваш трафик выходит в интернет с иностранного IP. Зарубежный VPS — выходной узел; РФ-сервер (опционально) — всегда-онлайн relay/хаб перед ним.
@@ -10,20 +12,20 @@
 
 | Скрипт | Где запускать | Что делает |
 |---|---|---|
-| [setup-foreign-vps.sh](setup-foreign-vps.sh) | зарубежный VPS (Ubuntu 24.04 / Debian 12–13), root | Поднимает **выходной** SOCKS5-узел на Dante с обязательной авторизацией логин/пароль. Наружу трафик уходит с иностранного IP VPS. |
-| [setup-ru-relay.sh](setup-ru-relay.sh) | РФ-сервер (Ubuntu 24.04 / Debian 12–13), root | Поднимает **релей** на 3proxy: локально слушает SOCKS5 с авторизацией, весь трафик пробрасывает на зарубежный Dante (parent). Удобен при плавающем домашнем IP — клиент логинится по паролю. |
-| [setup-foreign-wireguard.sh](setup-foreign-wireguard.sh) | зарубежный VPS (Ubuntu 24.04 / Debian 12–13), root | Бонус: полноценный **VPN** (WireGuard). Весь трафик телефона/ноутбука идет через VPS. Выдает клиентский конфиг + QR. Альтернатива точечному SOCKS, особенно для телефона и приложений без поддержки прокси. |
-| [_lib.sh](_lib.sh) | подключается всеми (НЕ запускается сам) | **Общая библиотека — единый источник правды.** Валидаторы (`valid_port`/`valid_ipv4`/`no_colon`…), детект SSH-портов и внешнего интерфейса, и анти-локаут: `ufw_is_active` (fail-closed гейт), `ufw_orchestrate` (на первом запуске разрешает SSH-порты и включает ufw ТОЛЬКО если хоть одно SSH-allow прошло; на re-run SSH не трогает), `ufw_clear_port` (перезапись правила порта, SSH-порты НИКОГДА не удаляет). **Кладите рядом с каждым setup-\*.sh.** |
+| [setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh) | зарубежный VPS (Ubuntu 24.04 / Debian 12–13), root | Поднимает **выходной** SOCKS5-узел на Dante с обязательной авторизацией логин/пароль. Наружу трафик уходит с иностранного IP VPS. |
+| [setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh) | РФ-сервер (Ubuntu 24.04 / Debian 12–13), root | Поднимает **релей** на 3proxy: локально слушает SOCKS5 с авторизацией, весь трафик пробрасывает на зарубежный Dante (parent). Удобен при плавающем домашнем IP — клиент логинится по паролю. |
+| [setup-foreign-wireguard.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh) | зарубежный VPS (Ubuntu 24.04 / Debian 12–13), root | Бонус: полноценный **VPN** (WireGuard). Весь трафик телефона/ноутбука идет через VPS. Выдает клиентский конфиг + QR. Альтернатива точечному SOCKS, особенно для телефона и приложений без поддержки прокси. |
+| [_lib.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/_lib.sh) | подключается всеми (НЕ запускается сам) | **Общая библиотека — единый источник правды.** Валидаторы (`valid_port`/`valid_ipv4`/`no_colon`…), детект SSH-портов и внешнего интерфейса, и анти-локаут: `ufw_is_active` (fail-closed гейт), `ufw_orchestrate` (на первом запуске разрешает SSH-порты и включает ufw ТОЛЬКО если хоть одно SSH-allow прошло; на re-run SSH не трогает), `ufw_clear_port` (перезапись правила порта, SSH-порты НИКОГДА не удаляет). **Кладите рядом с каждым setup-\*.sh.** |
 
-> Также в наборе: [setup-ru-sshkey.sh](setup-ru-sshkey.sh) (ключ РФ→зарубеж), [setup-foreign-bastion.sh](setup-foreign-bastion.sh) (запереть SSH на IP РФ-сервера), [setup-foreign-mtproxy.sh](setup-foreign-mtproxy.sh) (личный MTProto для Telegram), и Windows-инструменты [proxy-tunnel.ps1](proxy-tunnel.ps1) / [make-proxifier-profile.ps1](make-proxifier-profile.ps1) — см. разделы «Доп. автоматизация» и про MTProto ниже.
+> Также в наборе: [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) (ключ РФ→зарубеж), [setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh) (запереть SSH на IP РФ-сервера), [setup-foreign-mtproxy.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-mtproxy.sh) (личный MTProto для Telegram), и Windows-инструменты [proxy-tunnel.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1) / [make-proxifier-profile.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1) — см. разделы «Доп. автоматизация» и про MTProto ниже.
 
 ### Порядок запуска
 
-1. **Сначала** на зарубежном VPS — [setup-foreign-vps.sh](setup-foreign-vps.sh). Запишите выданные IP, порт (`39847`), логин (`proxyuser`), пароль.
-2. **Затем** на РФ-сервере — [setup-ru-relay.sh](setup-ru-relay.sh), вписав данные из шага 1 в переменные `FOREIGN_*`.
+1. **Сначала** на зарубежном VPS — [setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh). Запишите выданные IP, порт (`39847`), логин (`proxyuser`), пароль.
+2. **Затем** на РФ-сервере — [setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh), вписав данные из шага 1 в переменные `FOREIGN_*`.
 3. На клиенте (Proxifier на Windows): SOCKS5 на `IP_РФ_сервера:1080`, логин/пароль `relayuser` / `LOCAL_PASS`.
 
-WireGuard ([setup-foreign-wireguard.sh](setup-foreign-wireguard.sh)) — независимый путь: ставится на зарубежный VPS, клиент может цепляться к нему напрямую, РФ-релей для него не обязателен.
+WireGuard ([setup-foreign-wireguard.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh)) — независимый путь: ставится на зарубежный VPS, клиент может цепляться к нему напрямую, РФ-релей для него не обязателен.
 
 ### Согласованность переменных и портов
 
@@ -43,7 +45,7 @@ WireGuard ([setup-foreign-wireguard.sh](setup-foreign-wireguard.sh)) — нез�
 
 ### Какие переменные править
 
-**[setup-foreign-vps.sh](setup-foreign-vps.sh)** — передаются как переменные окружения при запуске:
+**[setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh)** — передаются как переменные окружения при запуске:
 
 | Переменная | Назначение |
 |---|---|
@@ -53,7 +55,7 @@ WireGuard ([setup-foreign-wireguard.sh](setup-foreign-wireguard.sh)) — нез�
 | `PROXY_PASS` | Пароль SOCKS. Пусто → сгенерируется через openssl и покажется в конце. |
 | `LISTEN_ADDR` | Адрес прослушивания (по умолчанию `0.0.0.0`; доступ всё равно держится на ufw `ALLOW_FROM`). |
 
-**[setup-ru-relay.sh](setup-ru-relay.sh)** — правятся в блоке КОНФИГУРАЦИИ в начале файла:
+**[setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh)** — правятся в блоке КОНФИГУРАЦИИ в начале файла:
 
 | Переменная | Назначение |
 |---|---|
@@ -67,11 +69,11 @@ WireGuard ([setup-foreign-wireguard.sh](setup-foreign-wireguard.sh)) — нез�
 | `ALLOW_FROM_CIDR` | Опционально: ограничить, с каких IP/диапазонов принимать подключения к `LOCAL_PORT`. |
 | `EXPECTED_DEB_SHA256` | Опционально: пин SHA256 доверенного .deb 3proxy (см. предупреждения). |
 
-**[setup-foreign-wireguard.sh](setup-foreign-wireguard.sh)** — правятся в начале файла: `WG_PORT` (`51820/udp`), `WG_SUBNET` (`10.8.0.0/24`), `SERVER_WG_IP`, `CLIENT_WG_IP`, `CLIENT_DNS`.
+**[setup-foreign-wireguard.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh)** — правятся в начале файла: `WG_PORT` (`51820/udp`), `WG_SUBNET` (`10.8.0.0/24`), `SERVER_WG_IP`, `CLIENT_WG_IP`, `CLIENT_DNS`.
 
 ### Как залить скрипт на сервер
 
-> ⚠️ **Общая библиотека [_lib.sh](_lib.sh).** Все `setup-*.sh` подключают ее (валидаторы, детект SSH-портов/интерфейса, ufw-хелперы вынесены туда — единый источник правды, без расхождений между копиями). Поэтому:
+> ⚠️ **Общая библиотека [_lib.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/_lib.sh).** Все `setup-*.sh` подключают ее (валидаторы, детект SSH-портов/интерфейса, ufw-хелперы вынесены туда — единый источник правды, без расхождений между копиями). Поэтому:
 > - **копируйте `_lib.sh` В ТОТ ЖЕ каталог**, что и сам скрипт;
 > - **запускайте скрипт файлом** (`sudo bash setup-*.sh`), **а НЕ через stdin/pipe** — при `ssh ... 'bash -s' < setup-*.sh` путь к `_lib.sh` не определить.
 > Скрипт без `_lib.sh` рядом завершится с понятной ошибкой (а не молча).
@@ -93,7 +95,7 @@ sed -i 's/\r$//' setup-foreign-vps.sh
 dos2unix setup-foreign-vps.sh   # apt install dos2unix
 ```
 
-Повторите для каждого `.sh`-скрипта, который трогали в Windows (в т.ч. для новых [setup-ru-sshkey.sh](setup-ru-sshkey.sh) и [setup-foreign-bastion.sh](setup-foreign-bastion.sh)). Скрипты `.ps1` запускаются на Windows и в конвертации LF не нуждаются.
+Повторите для каждого `.sh`-скрипта, который трогали в Windows (в т.ч. для новых [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) и [setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh)). Скрипты `.ps1` запускаются на Windows и в конвертации LF не нуждаются.
 
 ### Запуск
 
@@ -115,14 +117,14 @@ sudo bash setup-foreign-wireguard.sh
 
 | Скрипт | Где запускать | Что делает |
 |---|---|---|
-| [make-proxifier-profile.ps1](make-proxifier-profile.ps1) | Windows-ПК | Генерирует импортируемый профиль Proxifier (`.ppx`): один SOCKS5-прокси (РФ-релей или зарубежный VPS), правило «AI» заворачивает указанные приложения через прокси, «Default» — напрямую, DNS резолвится через прокси (без DNS-утечки). Заменяет ручную настройку раздела про Proxifier. |
-| [proxy-tunnel.ps1](proxy-tunnel.ps1) | Windows-ПК | Поднимает локальный SOCKS5 через **прямой** SSH-туннель (`ssh -D`) к зарубежному VPS и держит его живым (авто-переподключение с экспоненциальной паузой). Может ставиться как Scheduled Task (автозапуск при логоне). Альтернатива связке РФ-релей (3proxy) + Dante. |
-| [setup-ru-sshkey.sh](setup-ru-sshkey.sh) | РФ-сервер, root (или будущий пользователь autossh) | Готовит беспарольный (key-based) SSH-доступ **с РФ-сервера** на зарубежный VPS: генерирует ed25519-ключ, копирует публичную часть на VPS (`ssh-copy-id` или ручной фолбэк), проверяет вход по ключу, печатает egress-IP РФ-сервера. Фундамент для бастиона и autossh. |
-| [setup-foreign-bastion.sh](setup-foreign-bastion.sh) | зарубежный VPS, root | Запирает SSH этого VPS так, чтобы зайти по SSH можно было **только** с публичного IP РФ-сервера. Анти-локаутный порядок: валидация IP → определение реальных SSH-портов → узкие `allow from` → подтверждение → удаление широких правил (вкл. парные IPv6). Правило SOCKS-порта не трогает. |
+| [make-proxifier-profile.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1) | Windows-ПК | Генерирует импортируемый профиль Proxifier (`.ppx`): один SOCKS5-прокси (РФ-релей или зарубежный VPS), правило «AI» заворачивает указанные приложения через прокси, «Default» — напрямую, DNS резолвится через прокси (без DNS-утечки). Заменяет ручную настройку раздела про Proxifier. |
+| [proxy-tunnel.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1) | Windows-ПК | Поднимает локальный SOCKS5 через **прямой** SSH-туннель (`ssh -D`) к зарубежному VPS и держит его живым (авто-переподключение с экспоненциальной паузой). Может ставиться как Scheduled Task (автозапуск при логоне). Альтернатива связке РФ-релей (3proxy) + Dante. |
+| [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) | РФ-сервер, root (или будущий пользователь autossh) | Готовит беспарольный (key-based) SSH-доступ **с РФ-сервера** на зарубежный VPS: генерирует ed25519-ключ, копирует публичную часть на VPS (`ssh-copy-id` или ручной фолбэк), проверяет вход по ключу, печатает egress-IP РФ-сервера. Фундамент для бастиона и autossh. |
+| [setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh) | зарубежный VPS, root | Запирает SSH этого VPS так, чтобы зайти по SSH можно было **только** с публичного IP РФ-сервера. Анти-локаутный порядок: валидация IP → определение реальных SSH-портов → узкие `allow from` → подтверждение → удаление широких правил (вкл. парные IPv6). Правило SOCKS-порта не трогает. |
 
 ### Параметры
 
-**[make-proxifier-profile.ps1](make-proxifier-profile.ps1)** — параметры командной строки:
+**[make-proxifier-profile.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1)** — параметры командной строки:
 
 | Параметр | Назначение | По умолчанию |
 |---|---|---|
@@ -133,7 +135,7 @@ sudo bash setup-foreign-wireguard.sh
 | `-OutFile` | Путь к выходному `.ppx`. | `.\proxy-ai.ppx` |
 | `-Force` | Перезаписать существующий `-OutFile` без предупреждения. | — |
 
-**[proxy-tunnel.ps1](proxy-tunnel.ps1)** — параметры командной строки:
+**[proxy-tunnel.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1)** — параметры командной строки:
 
 | Параметр | Назначение | По умолчанию |
 |---|---|---|
@@ -144,7 +146,7 @@ sudo bash setup-foreign-wireguard.sh
 | `-Install` | Зарегистрировать как Scheduled Task (автозапуск при логоне). | — |
 | `-Uninstall` | Удалить Scheduled Task (`-LocalPort` должен совпадать с установкой — он входит в имя задачи). | — |
 
-**[setup-ru-sshkey.sh](setup-ru-sshkey.sh)** — правятся в блоке КОНФИГУРАЦИИ в начале файла:
+**[setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh)** — правятся в блоке КОНФИГУРАЦИИ в начале файла:
 
 | Переменная | Назначение | По умолчанию |
 |---|---|---|
@@ -154,7 +156,7 @@ sudo bash setup-foreign-wireguard.sh
 | `KEY_PATH` | Путь к приватному ключу (публичный — `+.pub`). | `~/.ssh/id_ed25519` |
 | `KEY_PASSPHRASE` | Пусто = headless-ключ без passphrase (нужно для autossh/бастиона). Заполнять только если headless не нужен и используете ssh-agent. | пусто |
 
-**[setup-foreign-bastion.sh](setup-foreign-bastion.sh)** — через переменные окружения при запуске:
+**[setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh)** — через переменные окружения при запуске:
 
 | Переменная | Назначение | По умолчанию |
 |---|---|---|
@@ -193,9 +195,9 @@ Unblock-File .\proxy-tunnel.ps1
    Первый запуск делать **вручную в консоли** (foreground) — чтобы принять host key и/или ввести пароль. Затем при желании `-Install` для автозапуска. В Proxifier/браузере: `127.0.0.1:1080`, SOCKS5, без логина/пароля.
 
 3. **Бастион (закрытие SSH зарубежного VPS на IP РФ-сервера)** — **строго в таком порядке**, иначе риск локаута:
-   1. На **РФ-сервере** запустите [setup-ru-sshkey.sh](setup-ru-sshkey.sh) (в интерактивной сессии — нужен TTY для разового ввода пароля VPS). Из итоговой сводки запишите **публичный egress-IP РФ-сервера**.
+   1. На **РФ-сервере** запустите [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) (в интерактивной сессии — нужен TTY для разового ввода пароля VPS). Из итоговой сводки запишите **публичный egress-IP РФ-сервера**.
    2. Убедитесь, что вход по ключу **с РФ-сервера на VPS реально работает** (скрипт это проверяет: строка `OK: вход по ключу … работает без пароля`).
-   3. **ТОЛЬКО ПОТОМ** на **зарубежном VPS** запустите [setup-foreign-bastion.sh](setup-foreign-bastion.sh), передав egress-IP РФ-сервера:
+   3. **ТОЛЬКО ПОТОМ** на **зарубежном VPS** запустите [setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh), передав egress-IP РФ-сервера:
       ```sh
       RU_SERVER_IP=<egress-IP_РФ-сервера> bash setup-foreign-bastion.sh
       ```
@@ -205,9 +207,9 @@ Unblock-File .\proxy-tunnel.ps1
 
 **Бастион — риск локаута (самый серьезный).** При неверном/изменившемся `RU_SERVER_IP` (опечатка, не тот IP, динамический/CGNAT-адрес РФ-сервера) вы **заблокируете себе SSH** к VPS. Единственное спасение — **аварийная консоль провайдера** (`ufw allow OpenSSH`). Поэтому: запускайте бастион **только на зарубежном VPS** (у него обычно есть консоль; у РФ-сервера ее может не быть), заранее откройте консоль в браузере и в **отдельной сессии** проверьте, что SSH к VPS проходит именно с РФ-сервера. Скрипт сначала добавляет узкие `allow from`, громко предупреждает и требует подтверждения, и лишь затем удаляет широкие правила. Ручной откат одной строкой через консоль провайдера: `ufw allow OpenSSH` (и при нестандартном порту `ufw allow <порт>/tcp`).
 
-**Порядок бастиона.** Сначала [setup-ru-sshkey.sh](setup-ru-sshkey.sh) на РФ, убедиться что вход по ключу работает, **ТОЛЬКО потом** [setup-foreign-bastion.sh](setup-foreign-bastion.sh) на зарубежном. Иначе после запирания SSH вы не сможете зайти на VPS.
+**Порядок бастиона.** Сначала [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) на РФ, убедиться что вход по ключу работает, **ТОЛЬКО потом** [setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh) на зарубежном. Иначе после запирания SSH вы не сможете зайти на VPS.
 
-**SSH-ключ без passphrase.** [setup-ru-sshkey.sh](setup-ru-sshkey.sh) намеренно создает ключ **без passphrase** ради headless-автоматизации (autossh/бастион переподнимаются без человека). Платой является то, что приватный ключ — «носитель доступа как есть»: кто прочитает файл, тот войдет на VPS. Скрипт держит права `600` на приватный ключ; на зарубежной стороне дополнительно ограничьте доступ (`from="egress-IP"` в `authorized_keys`, отдельный непривилегированный пользователь вместо root, firewall по IP). Если headless не нужен — задайте `KEY_PASSPHRASE` и используйте ssh-agent.
+**SSH-ключ без passphrase.** [setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) намеренно создает ключ **без passphrase** ради headless-автоматизации (autossh/бастион переподнимаются без человека). Платой является то, что приватный ключ — «носитель доступа как есть»: кто прочитает файл, тот войдет на VPS. Скрипт держит права `600` на приватный ключ; на зарубежной стороне дополнительно ограничьте доступ (`from="egress-IP"` в `authorized_keys`, отдельный непривилегированный пользователь вместо root, firewall по IP). Если headless не нужен — задайте `KEY_PASSPHRASE` и используйте ssh-agent.
 
 **Профиль Proxifier (.ppx) — пароль вводится в GUI.** В `.ppx` записывается только логин; пароль прокси **не пишется в файл** и вводится один раз в GUI Proxifier (он хранит его в собственном зашифрованном хранилище). Файл содержит публичный IP и логин прокси — не публикуйте `.ppx` в открытых репозиториях/чатах, добавьте `*.ppx` в `.gitignore`. После импорта проверьте в GUI, что включена опция «Resolve hostnames through proxy» (защита от DNS-утечки). Формат `.ppx` версионно-зависим — при отказе импорта настройте прокси вручную.
 
@@ -225,7 +227,7 @@ Unblock-File .\proxy-tunnel.ps1
 
 **Облачный файрвол провайдера.** ufw открывает порты только на самом сервере. Если у VPS есть security group в панели хостинга — нужный порт (`39847/tcp` для Dante, `51820/udp` для WireGuard) откройте там отдельно.
 
-**Доступ к выходному узлу.** В [setup-foreign-vps.sh](setup-foreign-vps.sh) по умолчанию (`ALLOW_FROM` пуст) SOCKS-порт вообще не открыт — это намеренно. Открывайте его **только** для IP РФ-сервера. `ALLOW_FROM=0.0.0.0/0` оставляет единственным барьером пароль — избегайте.
+**Доступ к выходному узлу.** В [setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh) по умолчанию (`ALLOW_FROM` пуст) SOCKS-порт вообще не открыт — это намеренно. Открывайте его **только** для IP РФ-сервера. `ALLOW_FROM=0.0.0.0/0` оставляет единственным барьером пароль — избегайте.
 
 **Пароли.** SOCKS5 защищен только паролем учетки и передает его практически открытым текстом. Используйте длинный случайный пароль (автоген через openssl) и храните в менеджере паролей — этот пароль = доступ к вашему иностранному IP. По возможности задавайте `ALLOW_FROM` / `ALLOW_FROM_CIDR`, чтобы ограничить источники.
 
@@ -233,7 +235,7 @@ Unblock-File .\proxy-tunnel.ps1
 
 **brute-force.** На зарубежном VPS поднимается fail2ban-jail для Dante (формат лог-строк Dante 1.4.x — после запуска проверьте `fail2ban-regex /var/log/danted.log /etc/fail2ban/filter.d/danted.conf`). У РФ-релея anti-bruteforce на SOCKS-порту нет — при публично открытом `LOCAL_PORT` используйте `ALLOW_FROM_CIDR`, длинный пароль или вынос за VPN.
 
-**Подлинность 3proxy .deb.** Апстрим 3proxy не публикует подписей/контрольных сумм. По умолчанию [setup-ru-relay.sh](setup-ru-relay.sh) делает только integrity-проверку (валидный .deb, не 404-HTML); подлинность криптографически не подтверждается. Для доверенной установки впишите хэш в `EXPECTED_DEB_SHA256`, полученный из независимого источника. При недоступности .deb скрипт собирает 3proxy из исходников по тегу релиза `3proxy-0.9.6` (откат к master помечается в логах).
+**Подлинность 3proxy .deb.** Апстрим 3proxy не публикует подписей/контрольных сумм. По умолчанию [setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh) делает только integrity-проверку (валидный .deb, не 404-HTML); подлинность криптографически не подтверждается. Для доверенной установки впишите хэш в `EXPECTED_DEB_SHA256`, полученный из независимого источника. При недоступности .deb скрипт собирает 3proxy из исходников по тегу релиза `3proxy-0.9.6` (откат к master помечается в логах).
 
 **WireGuard.** Клиентский конфиг содержит приватный ключ и печатается в терминал (текст + QR) — передавайте только по защищенному каналу, очищайте буфер/историю. `DEFAULT_FORWARD_POLICY` переключается в `ACCEPT` (нужно для маршрутизации) и остается таким после удаления VPN — при демонтаже верните в `DROP`. Проверьте строку `Endpoint`: за провайдерским NAT туда может попасть внутренний адрес — впишите реальный публичный IP вручную.
 
@@ -266,3 +268,5 @@ sudo bash setup-foreign-mtproxy.sh
 - Секрет генерируется **один раз** и хранится в `/etc/mtg/` — повторный запуск **не** ломает уже розданную ссылку.
 - Порт `443` должен быть свободен; иначе задай `MTPROXY_PORT=8443`.
 - Зависит от доступности GitHub API (скачивание mtg) и того, что выбранный `FAKE_TLS_DOMAIN` не заблокирован.
+
+_Dr. Mārcis Gasūns_

@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 # Свой SOCKS5-туннель на VPS для Claude и Google Antigravity
 
 Инструкция «с нуля» для не-администратора. Поднимаем личный SOCKS5-прокси на VPS и заворачиваем в него через **Proxifier** только трафик нужных программ.
@@ -58,11 +60,11 @@
 | **Claude** (веб / десктоп) из РФ | VPS в ЕС или США + Proxifier на цепочку | [разделы 0–10](#0-где-брать-vps--это-решает-всё) |
 | **Claude Code** (CLI) | проще — запустить **прямо на зарубежном VPS** по SSH, без Proxifier | [Что советуют на Habr](#что-советуют-на-habr-важные-альтернативы-и-нюансы) |
 | **Google Antigravity** | США + **резидентный IP** (датацентр часто фильтруют) | [оговорка про Antigravity](#02-важная-честная-оговорка-про-antigravity) · [Вариант Б](#вариант-б--резидентный-прокси-без-своего-сервера) |
-| **Telegram** (замедление / блок РКН) | встроенный **MTProto**-прокси: публичный ИЛИ свой [`setup-foreign-mtproxy.sh`](scripts/setup-foreign-mtproxy.sh). **Ни VPN, ни VPS, ни Proxifier не обязательны.** | [Telegram через прокси](#telegram-через-прокси-без-vpn-vps-и-proxifier) |
-| **Весь трафик телефона / устройства** | WireGuard [`setup-foreign-wireguard.sh`](scripts/setup-foreign-wireguard.sh) (конфиг + QR) | [бонус-VPN](#а-если-есть-свой-сервер-в-рф) |
+| **Telegram** (замедление / блок РКН) | встроенный **MTProto**-прокси: публичный ИЛИ свой [`setup-foreign-mtproxy.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-mtproxy.sh). **Ни VPN, ни VPS, ни Proxifier не обязательны.** | [Telegram через прокси](#telegram-через-прокси-без-vpn-vps-и-proxifier) |
+| **Весь трафик телефона / устройства** | WireGuard [`setup-foreign-wireguard.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh) (конфиг + QR) | [бонус-VPN](#а-если-есть-свой-сервер-в-рф) |
 | **Только Chrome / отдельные сайты** | Proxifier (`chrome.exe`) ИЛИ SSH-туннель + SwitchyOmega | [Chrome через личный VPS](#chrome-через-личный-vps) |
 | **Резидентный IP вместо датацентрового** | residential: способ **A** (Proxifier→шлюз) или **B** (parent релея) | [Вариант Б](#вариант-б--резидентный-прокси-без-своего-сервера) |
-| **Стабильный вход + несколько устройств** | свой РФ-сервер как relay/хаб ([`setup-ru-relay.sh`](scripts/setup-ru-relay.sh)) | [свой сервер в РФ](#а-если-есть-свой-сервер-в-рф) |
+| **Стабильный вход + несколько устройств** | свой РФ-сервер как relay/хаб ([`setup-ru-relay.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh)) | [свой сервер в РФ](#а-если-есть-свой-сервер-в-рф) |
 
 > Про выходной IP коротко: **Claude** работает с ЕС/США **датацентрового** IP; **Antigravity** обычно требует **резидентный US**; **Telegram** — не про выходной IP вообще: у него свой протокол обхода (MTProto), цепочка/VPS ему не нужны.
 
@@ -165,7 +167,7 @@
 
 ## 1. Создать VPS
 
-> ⚡ **Не делай шаги 3–9 руками — их полностью выполняет скрипт.** Установку и настройку Dante, пользователя, фаервол, fail2ban и проверку автоматизирует [scripts/setup-foreign-vps.sh](scripts/setup-foreign-vps.sh) (одна команда, см. [scripts/README.md](scripts/README.md)). Вручную нужны только шаги 1–2 (создать VPS и подключиться по SSH) — это автоматизировать нельзя. Ручные шаги 3–9 ниже оставлены, чтобы понимать, что происходит, и для отладки.
+> ⚡ **Не делай шаги 3–9 руками — их полностью выполняет скрипт.** Установку и настройку Dante, пользователя, фаервол, fail2ban и проверку автоматизирует [scripts/setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh) (одна команда, см. [scripts/README.md](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/README.md)). Вручную нужны только шаги 1–2 (создать VPS и подключиться по SSH) — это автоматизировать нельзя. Ручные шаги 3–9 ниже оставлены, чтобы понимать, что происходит, и для отладки.
 
 1. Зарегистрируйся у выбранного провайдера, пополни баланс.
 2. Создай сервер: локация **США**, ОС **Ubuntu 24.04**, тариф минимальный.
@@ -316,7 +318,7 @@ curl --socks5 proxyuser:ТВОЙ_ПАРОЛЬ@127.0.0.1:39847 https://api.ipify.
 
 ## 10. Настроить Proxifier (Windows)
 
-> ⚡ Можно не настраивать прокси-цепочку в Proxifier вручную по шагам ниже: на Windows-ПК запустите [scripts/make-proxifier-profile.ps1](scripts/make-proxifier-profile.ps1) (например, `.\make-proxifier-profile.ps1 -ProxyHost <IP_РФ_сервера>`) — он соберет готовый к импорту профиль `.ppx` с SOCKS5-прокси `IP:1080`, логином `relayuser` (пароль в файл не пишется — введете в GUI один раз), правилом «AI» для нужных приложений и резолвом DNS через прокси; затем в Proxifier выберите `Profile → Import Profile…`. Если ваша версия Proxifier откажется импортировать файл (`Cannot import / Unsupported profile`) — настройте прокси вручную по этому разделу теми же значениями `Host/Port/User`, а профиль используйте как шпаргалку.
+> ⚡ Можно не настраивать прокси-цепочку в Proxifier вручную по шагам ниже: на Windows-ПК запустите [scripts/make-proxifier-profile.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1) (например, `.\make-proxifier-profile.ps1 -ProxyHost <IP_РФ_сервера>`) — он соберет готовый к импорту профиль `.ppx` с SOCKS5-прокси `IP:1080`, логином `relayuser` (пароль в файл не пишется — введете в GUI один раз), правилом «AI» для нужных приложений и резолвом DNS через прокси; затем в Proxifier выберите `Profile → Import Profile…`. Если ваша версия Proxifier откажется импортировать файл (`Cannot import / Unsupported profile`) — настройте прокси вручную по этому разделу теми же значениями `Host/Port/User`, а профиль используйте как шпаргалку.
 
 Сайт: [proxifier.com](https://www.proxifier.com/)
 
@@ -363,7 +365,7 @@ curl --socks5 proxyuser:ТВОЙ_ПАРОЛЬ@127.0.0.1:39847 https://api.ipify.
 
 SSH-туннель дает **локальный SOCKS5 без пароля** на `127.0.0.1:1080` — а с localhost проблема авторизации отпадает.
 
-1. Подними туннель к зарубежному VPS: [scripts/proxy-tunnel.ps1](scripts/proxy-tunnel.ps1) `-VpsIp <IP_зарубежного_VPS>` (выход будет с иностранного IP).
+1. Подними туннель к зарубежному VPS: [scripts/proxy-tunnel.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1) `-VpsIp <IP_зарубежного_VPS>` (выход будет с иностранного IP).
 2. Создай ярлык Chrome для отдельного, проксированного профиля. Target ярлыка:
    ```
    "C:\Program Files\Google\Chrome\Application\chrome.exe" --proxy-server="socks5://127.0.0.1:1080" --user-data-dir="%USERPROFILE%\chrome-vps"
@@ -390,7 +392,7 @@ SwitchyOmega + локальный туннель обходит ограниче
 
 ## Альтернатива: SSH-туннель без установки софта на сервер (безопаснее)
 
-> ⚡ SSH-туннель и его автоперезапуск можно не держать руками: на Windows-ПК запустите [scripts/proxy-tunnel.ps1](scripts/proxy-tunnel.ps1) (например, `.\proxy-tunnel.ps1 -VpsIp <IP_зарубежного_VPS> -VpsUser proxyuser -LocalPort 1080`) — он поднимет локальный SOCKS5 на `127.0.0.1:1080` через прямой `ssh -D` к зарубежному VPS и сам будет держать его живым (авто-переподключение с нарастающей паузой при сбоях). Первый запуск сделайте вручную в консоли, чтобы принять host key и/или ввести пароль; затем для автозапуска при входе в систему — `.\proxy-tunnel.ps1 -VpsIp <IP> -Install` (регистрирует Scheduled Task), удаление — `-Uninstall`.
+> ⚡ SSH-туннель и его автоперезапуск можно не держать руками: на Windows-ПК запустите [scripts/proxy-tunnel.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1) (например, `.\proxy-tunnel.ps1 -VpsIp <IP_зарубежного_VPS> -VpsUser proxyuser -LocalPort 1080`) — он поднимет локальный SOCKS5 на `127.0.0.1:1080` через прямой `ssh -D` к зарубежному VPS и сам будет держать его живым (авто-переподключение с нарастающей паузой при сбоях). Первый запуск сделайте вручную в консоли, чтобы принять host key и/или ввести пароль; затем для автозапуска при входе в систему — `.\proxy-tunnel.ps1 -VpsIp <IP> -Install` (регистрирует Scheduled Task), удаление — `-Uninstall`.
 
 Ничего не ставим на сервер — SSH сам поднимает локальный SOCKS5. В PowerShell запусти и **не закрывай** окно:
 
@@ -466,14 +468,14 @@ SOCKS5 появится на `127.0.0.1:1080`. В Proxifier тогда укаж�
 
 ### Пошагово (порядок важен)
 
-> ⚠️ **Перед запуском.** Скрипты лежат в [scripts/](scripts/). Все `setup-*.sh` подключают общую библиотеку [scripts/_lib.sh](scripts/_lib.sh) — **копируй ее в тот же каталог, что и скрипт, и запускай файлом** (`sudo bash имя.sh`), а **не через pipe** (`ssh ... 'bash -s' < ...` не найдет `_lib.sh`). Залей на сервер `_lib.sh` + нужный скрипт (`scp` или вставь через `nano`). Если правил в **Windows-редакторе** (CRLF) — сначала убери возвраты каретки во **всех** `.sh` (включая `_lib.sh`), иначе bash ругнется `$'\r': command not found`:
+> ⚠️ **Перед запуском.** Скрипты лежат в [scripts/](scripts/). Все `setup-*.sh` подключают общую библиотеку [scripts/_lib.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/_lib.sh) — **копируй ее в тот же каталог, что и скрипт, и запускай файлом** (`sudo bash имя.sh`), а **не через pipe** (`ssh ... 'bash -s' < ...` не найдет `_lib.sh`). Залей на сервер `_lib.sh` + нужный скрипт (`scp` или вставь через `nano`). Если правил в **Windows-редакторе** (CRLF) — сначала убери возвраты каретки во **всех** `.sh` (включая `_lib.sh`), иначе bash ругнется `$'\r': command not found`:
 >
 > ```sh
 > sed -i 's/\r$//' *.sh
 > ```
 
 **Шаг 1. Поднять выходной узел на зарубежном VPS.**
-На зарубежном VPS от root запустите [scripts/setup-foreign-vps.sh](scripts/setup-foreign-vps.sh), обязательно указав `ALLOW_FROM` = публичный IP вашего РФ-сервера (иначе SOCKS-порт не откроется в ufw — это безопасное поведение по умолчанию):
+На зарубежном VPS от root запустите [scripts/setup-foreign-vps.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh), обязательно указав `ALLOW_FROM` = публичный IP вашего РФ-сервера (иначе SOCKS-порт не откроется в ufw — это безопасное поведение по умолчанию):
 
 ```sh
 ALLOW_FROM=IP_РФ_СЕРВЕРА bash setup-foreign-vps.sh
@@ -482,7 +484,7 @@ ALLOW_FROM=IP_РФ_СЕРВЕРА bash setup-foreign-vps.sh
 Из итогового блока **запишите 4 значения**: IP сервера, порт SOCKS (`39847` по умолчанию), логин (`proxyuser`) и пароль (если не задавали свой — он сгенерирован автоматически, сохраните его).
 
 **Шаг 2. Вписать эти данные на РФ-сервере и запустить релей.**
-Откройте [scripts/setup-ru-relay.sh](scripts/setup-ru-relay.sh) и в блоке КОНФИГУРАЦИИ подставьте значения из шага 1:
+Откройте [scripts/setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh) и в блоке КОНФИГУРАЦИИ подставьте значения из шага 1:
 
 | Переменная в setup-ru-relay.sh | Что подставить (из шага 1) |
 |---|---|
@@ -527,18 +529,18 @@ ufw allow from ВАШ_ДОМАШНИЙ_IP to any port 1080 proto tcp
 ufw deny 1080/tcp
 ```
 
-Поэтому autossh годится при статичном домашнем IP; при плавающем IP удобнее именно [scripts/setup-ru-relay.sh](scripts/setup-ru-relay.sh) (там авторизация по паролю, а не по доверенному IP).
+Поэтому autossh годится при статичном домашнем IP; при плавающем IP удобнее именно [scripts/setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh) (там авторизация по паролю, а не по доверенному IP).
 
 ### Бонус: полноценный VPN для телефона и всех устройств
 
-Если нужен не точечный прокси (Proxifier работает только на ПК и только для указанных приложений), а **весь** трафик устройства — поднимите WireGuard на зарубежном VPS скриптом [scripts/setup-foreign-wireguard.sh](scripts/setup-foreign-wireguard.sh). Он выдает готовый клиентский конфиг и QR-код: телефон сканирует QR — и весь его трафик (включая мессенджеры, мобильные приложения и системные службы, которые не умеют в SOCKS) выходит с иностранного IP. WireGuard удобнее SOCKS, когда нужен телефон, приложения без поддержки прокси или просто «включил и забыл» на всё устройство. Клиент при этом может цепляться к VPS напрямую — РФ-релей для WireGuard не обязателен.
+Если нужен не точечный прокси (Proxifier работает только на ПК и только для указанных приложений), а **весь** трафик устройства — поднимите WireGuard на зарубежном VPS скриптом [scripts/setup-foreign-wireguard.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh). Он выдает готовый клиентский конфиг и QR-код: телефон сканирует QR — и весь его трафик (включая мессенджеры, мобильные приложения и системные службы, которые не умеют в SOCKS) выходит с иностранного IP. WireGuard удобнее SOCKS, когда нужен телефон, приложения без поддержки прокси или просто «включил и забыл» на всё устройство. Клиент при этом может цепляться к VPS напрямую — РФ-релей для WireGuard не обязателен.
 
 ### Бастион: закройте SSH зарубежного VPS на IP РФ-сервера
 
 Чтобы к зарубежному VPS можно было подключаться по SSH **только** с публичного IP вашего РФ-сервера (бастиона), не настраивайте `ufw` вручную — используйте два скрипта **строго в этом порядке**, иначе рискуете закрыть себе доступ:
 
-1. На **РФ-сервере** запустите [scripts/setup-ru-sshkey.sh](scripts/setup-ru-sshkey.sh) (в интерактивной сессии — потребуется один раз ввести пароль VPS). Он создает ed25519-ключ, копирует его на VPS, проверяет беспарольный вход и печатает **публичный egress-IP РФ-сервера**. Запишите этот IP и убедитесь, что строка `OK: вход по ключу … работает без пароля` появилась.
-2. **Только после того, как вход по ключу с РФ-сервера на VPS реально работает**, на **зарубежном VPS** запустите [scripts/setup-foreign-bastion.sh](scripts/setup-foreign-bastion.sh), передав egress-IP РФ-сервера:
+1. На **РФ-сервере** запустите [scripts/setup-ru-sshkey.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh) (в интерактивной сессии — потребуется один раз ввести пароль VPS). Он создает ed25519-ключ, копирует его на VPS, проверяет беспарольный вход и печатает **публичный egress-IP РФ-сервера**. Запишите этот IP и убедитесь, что строка `OK: вход по ключу … работает без пароля` появилась.
+2. **Только после того, как вход по ключу с РФ-сервера на VPS реально работает**, на **зарубежном VPS** запустите [scripts/setup-foreign-bastion.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh), передав egress-IP РФ-сервера:
    ```sh
    RU_SERVER_IP=<egress-IP_РФ-сервера> bash setup-foreign-bastion.sh
    ```
@@ -628,7 +630,7 @@ Anthropic и особенно Google маркируют IP дата-центро
 | Цепочка | `[ПК] → residential-шлюз → интернет` | `[ПК] → РФ-релей (3proxy) → residential-шлюз → интернет` |
 | Свой VPS нужен? | **Нет** | Да (РФ-релей; зарубежный Dante не нужен) |
 | Кто видит твой домашний РФ-IP | residential-провайдер | только РФ-релей (провайдер видит IP релея) |
-| Как включить | сгенерь профиль на шлюз: `make-proxifier-profile.ps1 -ProxyHost <шлюз> -ProxyPort <порт> -ProxyUser <логин>` ([scripts/make-proxifier-profile.ps1](scripts/make-proxifier-profile.ps1)) | впиши `RESI_HOST/RESI_PORT/RESI_USER/RESI_PASS` (и `RESI_TYPE=socks5`/`http`) в [scripts/setup-ru-relay.sh](scripts/setup-ru-relay.sh) и запусти — релей сам направит выход на residential |
+| Как включить | сгенерь профиль на шлюз: `make-proxifier-profile.ps1 -ProxyHost <шлюз> -ProxyPort <порт> -ProxyUser <логин>` ([scripts/make-proxifier-profile.ps1](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1)) | впиши `RESI_HOST/RESI_PORT/RESI_USER/RESI_PASS` (и `RESI_TYPE=socks5`/`http`) в [scripts/setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh) и запусти — релей сам направит выход на residential |
 | Когда выбирать | один ПК; не нужен общий хаб/несколько устройств; шлюз достижим из РФ напрямую | уже держишь РФ-релей (общий вход для нескольких устройств/телефона, авторизация по паролю, стабильная «прихожая»); хочешь скрыть домашний IP от residential-провайдера; либо шлюз из РФ напрямую не открывается (релей дотянется до него «из-за границы») |
 
 > Оба способа дают **резидентный выходной IP** (не датацентровый) — именно это обходит фильтры, режущие серверные ASN (Antigravity и агрессивный анти-бот). Бери **static/ISP** (фиксированный IP), не rotating — иначе ломаются логины. В способе B зарубежный Dante-VPS становится лишним: residential и есть «заграница».
@@ -831,8 +833,8 @@ Anthropic и особенно Google маркируют IP дата-центро
 
 ### Если хочешь стабильнее и приватнее (опционально, уже с сервером)
 
-- **Нацелить Telegram на твой РФ-релей.** У тебя уже поднят [scripts/setup-ru-relay.sh](scripts/setup-ru-relay.sh): в Telegram добавь прокси **SOCKS5** → `IP_РФ_сервера:1080`, логин `relayuser` + пароль. Личный канал, без Proxifier.
-- **Свой MTProto-прокси с Fake TLS** на зарубежном VPS — топ по надежности и маскировке (прикидывается HTTPS реального сайта, РКН не ловит по кластерам). Гайды на Habr: [MTProto + Fake TLS за 5 минут](https://habr.com/ru/articles/1010942/), [«партизанский» прокси под онлайн-магазин](https://habr.com/ru/articles/995102/), [способы обхода замедления Telegram](https://habr.com/ru/articles/1014934/). Готовый скрипт уже есть — [scripts/setup-foreign-mtproxy.sh](scripts/setup-foreign-mtproxy.sh): ставит mtg, генерит Fake-TLS-секрет (маскировка под домен) и выдает готовую `tg://proxy`-ссылку (подробности — [scripts/README.md](scripts/README.md)).
+- **Нацелить Telegram на твой РФ-релей.** У тебя уже поднят [scripts/setup-ru-relay.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh): в Telegram добавь прокси **SOCKS5** → `IP_РФ_сервера:1080`, логин `relayuser` + пароль. Личный канал, без Proxifier.
+- **Свой MTProto-прокси с Fake TLS** на зарубежном VPS — топ по надежности и маскировке (прикидывается HTTPS реального сайта, РКН не ловит по кластерам). Гайды на Habr: [MTProto + Fake TLS за 5 минут](https://habr.com/ru/articles/1010942/), [«партизанский» прокси под онлайн-магазин](https://habr.com/ru/articles/995102/), [способы обхода замедления Telegram](https://habr.com/ru/articles/1014934/). Готовый скрипт уже есть — [scripts/setup-foreign-mtproxy.sh](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-mtproxy.sh): ставит mtg, генерит Fake-TLS-секрет (маскировка под домен) и выдает готовую `tg://proxy`-ссылку (подробности — [scripts/README.md](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/README.md)).
 
 ---
 
@@ -908,3 +910,5 @@ Anthropic и особенно Google маркируют IP дата-центро
 - [Grim1313/mtproto-for-telegram — авто-обновляемый список прокси](https://github.com/Grim1313/mtproto-for-telegram)
 - [@ProxyMTProto — канал с прокси](https://t.me/s/ProxyMTProto)
 - [Blocking of Telegram in Russia — Wikipedia](https://en.wikipedia.org/wiki/Blocking_of_Telegram_in_Russia)
+
+_Dr. Mārcis Gasūns_

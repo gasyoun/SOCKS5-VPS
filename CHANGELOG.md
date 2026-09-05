@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 # Changelog
 
 Все заметные изменения набора SOCKS5-VPS. Формат — по мотивам
@@ -10,29 +12,29 @@
 
 ### Added — инструменты
 
-- **Гайд** [`claude-antigravity-socks5-vps.md`](claude-antigravity-socks5-vps.md):
+- **Гайд** [`claude-antigravity-socks5-vps.md`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/claude-antigravity-socks5-vps.md):
   **сценарии использования** (роутинг-таблица «задача → инструмент», включая
   Telegram), выбор VPS и локации, оплата из РФ (карта/крипта/PayPal), пошаговая
   настройка, Proxifier, Chrome, Telegram, Jio/Plati/G2A, цены, troubleshooting.
-- **Выходной узел** [`scripts/setup-foreign-vps.sh`](scripts/setup-foreign-vps.sh):
+- **Выходной узел** [`scripts/setup-foreign-vps.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-vps.sh):
   Dante SOCKS5 на зарубежном VPS с обязательной авторизацией.
-- **РФ-релей** [`scripts/setup-ru-relay.sh`](scripts/setup-ru-relay.sh):
+- **РФ-релей** [`scripts/setup-ru-relay.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-relay.sh):
   3proxy SOCKS5 с авторизацией, parent → зарубежный Dante (работает при плавающем
   домашнем IP).
-- **WireGuard** [`scripts/setup-foreign-wireguard.sh`](scripts/setup-foreign-wireguard.sh):
+- **WireGuard** [`scripts/setup-foreign-wireguard.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-wireguard.sh):
   полноценный VPN для телефона/всех приложений (конфиг + QR).
-- **MTProto для Telegram** [`scripts/setup-foreign-mtproxy.sh`](scripts/setup-foreign-mtproxy.sh):
+- **MTProto для Telegram** [`scripts/setup-foreign-mtproxy.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-mtproxy.sh):
   личный mtg-прокси с Fake TLS (не в публичных списках).
-- **SSH-ключ + бастион**: [`scripts/setup-ru-sshkey.sh`](scripts/setup-ru-sshkey.sh)
-  (ключ РФ→зарубеж с `from=`/`restrict`), [`scripts/setup-foreign-bastion.sh`](scripts/setup-foreign-bastion.sh)
+- **SSH-ключ + бастион**: [`scripts/setup-ru-sshkey.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-ru-sshkey.sh)
+  (ключ РФ→зарубеж с `from=`/`restrict`), [`scripts/setup-foreign-bastion.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/setup-foreign-bastion.sh)
   (запереть SSH зарубежного на IP РФ-сервера, v4+v6).
-- **Windows**: [`scripts/proxy-tunnel.ps1`](scripts/proxy-tunnel.ps1) (SSH-туннель
-  SOCKS5 с автоперезапуском + Scheduled Task), [`scripts/make-proxifier-profile.ps1`](scripts/make-proxifier-profile.ps1)
+- **Windows**: [`scripts/proxy-tunnel.ps1`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/proxy-tunnel.ps1) (SSH-туннель
+  SOCKS5 с автоперезапуском + Scheduled Task), [`scripts/make-proxifier-profile.ps1`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/make-proxifier-profile.ps1)
   (генератор профиля Proxifier `.ppx`).
 - **Residential-выход (способ A и B)**: Proxifier прямо на residential-шлюз ИЛИ
   residential как `parent` РФ-релея (`RESI_*`) — резидентный IP в обход фильтров
   серверных ASN (Antigravity). Раздел «A vs B — когда какой» в гайде.
-- **Общая библиотека** [`scripts/_lib.sh`](scripts/_lib.sh): единый источник
+- **Общая библиотека** [`scripts/_lib.sh`](https://github.com/gasyoun/SOCKS5-VPS/blob/main/scripts/_lib.sh): единый источник
   валидаторов, детекторов и анти-локаут-логики для всех `setup-*.sh`.
 
 ### Security & hardening (заложено сразу, усилено после нескольких ревью)
@@ -70,3 +72,5 @@
 
 - Боевой прогон на реальном зарубежном VPS + РФ-сервере (с аварийной консолью
   провайдера как страховкой), затем merge ветки в `main`.
+
+_Dr. Mārcis Gasūns_
